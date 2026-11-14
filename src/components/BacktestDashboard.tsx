@@ -119,7 +119,7 @@ export function BacktestDashboard({ result }: { result: BacktestResult }) {
 function DataQualityPanel({ result }: { result: BacktestResult }) {
   const q = result.dataQuality;
   const rows: [string, string][] = [
-    ["منبع داده", q.source === "binance" ? "Binance Futures (عمومی)" : "CSV بارگذاری‌شده"],
+    ["منبع داده", q.source === "binance" ? "Binance Futures (عمومی)" : q.source === "toobit" ? "Toobit Futures (عمومی)" : "CSV بارگذاری‌شده"],
     ["تعداد ردیف خام", String(q.totalRawRows)],
     ["کندل‌های معتبر", String(q.totalValidCandles)],
     ["کندل‌های warm-up", String(q.warmupCandles)],

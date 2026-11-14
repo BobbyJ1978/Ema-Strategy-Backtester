@@ -3,6 +3,10 @@ import { runBacktest } from "@/lib/backtester/engine";
 import { defaultConfig } from "@/lib/backtester/config";
 import type { BacktestRunConfig, Candle, FundingEntry } from "@/lib/backtester/types";
 import { fetchKlines, fetchFundingRates } from "@/lib/backtester/data/binance_adapter";
+import {
+  fetchKlines as fetchToobitKlines,
+  fetchFundingRates as fetchToobitFundingRates,
+} from "@/lib/backtester/data/toobit_adapter";
 import { parseOhlcvCsv } from "@/lib/backtester/data/csv_parser";
 import { saveRun } from "@/lib/backtester/storage/run_store";
 import { parseUtcDate } from "@/lib/backtester/utils/time_utils";
@@ -41,6 +45,25 @@ export async function POST(req: NextRequest) {
       }
       candles = parseOhlcvCsv(body.csvContent);
       funding = [];
+    } else if (cfg.source === "toobit") {
+      const tfMs = cfg.strategy.timeframeMinutes * 60_000;
+      const endTime = cfg.endDate ? parseUtcDate(cfg.endDate) + 86_400_000 - tfMs : Date.now();
+      const warmupStart = cfg.startDate
+        ? parseUtcDate(cfg.startDate) - cfg.warmupBars * tfMs
+        : endTime - 400 * 86_400_000;
+      candles = await fetchToobitKlines(
+        cfg.strategy.symbol,
+        cfg.strategy.timeframeMinutes,
+        warmupStart,
+        endTime
+      );
+      if (cfg.costs.applyFunding) {
+        try {
+          funding = await fetchToobitFundingRates(cfg.strategy.symbol, warmupStart, endTime);
+        } catch {
+          funding = [];
+        }
+      }
     } else {
       const tfMs = cfg.strategy.timeframeMinutes * 60_000;
       const endTime = cfg.endDate ? parseUtcDate(cfg.endDate) + 86_400_000 - tfMs : Date.now();

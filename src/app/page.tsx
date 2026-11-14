@@ -5,7 +5,7 @@ import type { BacktestResult } from "@/lib/backtester/types";
 import { BacktestDashboard } from "@/components/BacktestDashboard";
 
 interface FormState {
-  source: "binance" | "csv";
+  source: "binance" | "csv" | "toobit";
   startDate: string;
   endDate: string;
   initialEquity: number;
@@ -120,6 +120,7 @@ export default function Home() {
               onChange={(e) => set("source", e.target.value as FormState["source"])}
               className={inputCls}
             >
+              <option value="toobit">Toobit (عمومی)</option>
               <option value="binance">Binance (عمومی)</option>
               <option value="csv">بارگذاری CSV</option>
             </select>

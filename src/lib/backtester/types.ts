@@ -102,7 +102,7 @@ export interface BacktestRunConfig {
   endDate: string | null;
   warmupBars: number;
   missingCandlePolicy: "exclude_segment";
-  source: "binance" | "csv";
+  source: "binance" | "csv" | "toobit";
 }
 
 export interface DataQualityReport {
